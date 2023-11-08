@@ -1,4 +1,4 @@
-import { List, ListFormType, ListId } from '@/types/list'
+import { List, ListCreateType, ListId } from '@/types/list'
 import {
     addDoc,
     collection,
@@ -7,14 +7,15 @@ import {
     doc,
     getDoc,
     getDocs,
+    orderBy,
+    OrderByDirection,
     query,
-    setDoc,
     updateDoc,
     where,
 } from '@firebase/firestore'
-import { AUTH, DB } from './index'
+import { AUTH, DB } from '../index'
 import { GIFTS_COLLECTION, LISTS_COLLECTION } from '@/firebase/constants'
-import { getListGifts } from '@/firebase/gifts'
+import { getListGifts } from '@/firebase/db/gifts'
 
 export const getAllLists = async (): Promise<Array<List>> => {
     const querySnapshot = await getDocs(collection(DB, LISTS_COLLECTION))
@@ -22,8 +23,14 @@ export const getAllLists = async (): Promise<Array<List>> => {
     return querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as List))
 }
 
-export const getUserLists = async (): Promise<Array<List>> => {
-    const querySnapshot = await getDocs(query(collection(DB, LISTS_COLLECTION), where('userId', '==', AUTH.currentUser?.uid)))
+export const getUserLists = async (sort = 'title', order: OrderByDirection = 'desc'): Promise<Array<List>> => {
+    const querySnapshot = await getDocs(
+        query(
+            collection(DB, LISTS_COLLECTION),
+            where('userId', '==', AUTH.currentUser?.uid),
+            orderBy(sort, order),
+        ),
+    )
 
     return querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as List))
 }
@@ -52,10 +59,10 @@ export const deleteList = async (listId: ListId | undefined) => {
     }
 }
 
-export const createList = async (newList: ListFormType) => {
+export const createList = async (newList: ListCreateType) => {
     await addDoc(collection(DB, LISTS_COLLECTION), newList)
 }
 
-export const updateList = async (listId: ListId, updatedList: ListFormType) => {
-    await setDoc(doc(DB, LISTS_COLLECTION, listId), updatedList)
+export const updateList = async (listId: ListId, updatedList: ListCreateType) => {
+    await updateDoc(doc(DB, LISTS_COLLECTION, listId), updatedList)
 }

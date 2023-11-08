@@ -1,36 +1,49 @@
 import { GiftId } from '@/types/gift'
-import { FC } from 'react'
+import { FC, MouseEventHandler } from 'react'
 import { Button } from 'antd'
-import { AUTH } from '@/firebase/index'
 import { useRouter } from 'next/router'
+import { toggleGiver } from '@/firebase/db/gifts'
+import { CheckCircleTwoTone } from '@ant-design/icons'
+import { useQueryClient } from 'react-query'
+import { useUserContext } from '@/context/userContext'
 
 interface Props {
     giftId: GiftId
     giverId: string | undefined
 }
 
-export const GiftSelector: FC<Props> = ({ giftId, giverId }) => {
+export const GiverButton: FC<Props> = ({ giftId, giverId = null }) => {
+    const user = useUserContext()
     const router = useRouter()
+    const queryClient = useQueryClient()
 
-    const onChooseGiftHandler = (giftId: string) => {
-        if (!AUTH.currentUser) {
+    const onChooseGiftHandler: MouseEventHandler<HTMLElement> = (event) => {
+        event.stopPropagation()
+
+        if (!user) {
             router.push('/login')
         } else {
-
+            toggleGiver(giftId, !!giverId ? null : user.uid).then(() => {
+                queryClient.invalidateQueries('gifts')
+            })
         }
+    }
 
-        console.log('Chosen', giftId)
+    if (!!giverId && !!user && (user.uid !== giverId)) {
+        return (
+            <Button type={'text'} icon={<CheckCircleTwoTone twoToneColor='#52c41a'/>}>
+                Подарок уже забронирован
+            </Button>
+        )
     }
 
     return (
         <Button
-            type={'primary'}
-            onClick={event => {
-                event.stopPropagation()
-                onChooseGiftHandler(giftId)
-            }}
+            type={!!giverId ? 'text' : 'primary'}
+            danger={!!giverId}
+            onClick={onChooseGiftHandler}
         >
-            Подарить
+            {!!giverId ? 'Отменить выбор' : 'Подарить'}
         </Button>
     )
 }

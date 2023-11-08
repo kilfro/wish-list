@@ -1,6 +1,7 @@
 import { FC, ReactNode } from 'react'
-import { Card, Flex, Typography } from 'antd'
+import { Flex, Typography } from 'antd'
 import { useRouter } from 'next/router'
+import { Card } from '@/components/common/Card'
 
 interface Props {
     icon: ReactNode
@@ -16,11 +17,10 @@ export const CardButton: FC<Props> = ({ icon, text, onClick, link }) => {
 
     return (
         <Card
-            style={{ width: 300, height: 400, borderRadius: 24 }}
-            hoverable
+            style={{ height: '100%' }}
             onClick={onClick || goToLink}
         >
-            <Flex vertical justify={'space-around'} align={'center'}>
+            <Flex vertical justify={'center'} align={'center'} gap={'small'} style={{ height: 'inherit' }}>
                 <span style={{ fontSize: 72 }}>{icon}</span>
                 <Typography.Title level={4}>{text}</Typography.Title>
             </Flex>

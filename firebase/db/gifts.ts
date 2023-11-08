@@ -1,4 +1,15 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from '@firebase/firestore'
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    setDoc,
+    updateDoc,
+    where,
+} from '@firebase/firestore'
 import { AUTH, DB } from '@/firebase/index'
 import { GIFTS_COLLECTION } from '@/firebase/constants'
 import { Gift, GiftFormType, GiftId } from '@/types/gift'
@@ -49,4 +60,13 @@ export const editGift = async (giftId: GiftId, updatedGift: GiftFormType) => {
 
 export const deleteGift = async (giftId: GiftId) => {
     await deleteDoc(doc(DB, GIFTS_COLLECTION, giftId))
+}
+
+export const toggleGiver = async (giftId: GiftId, userId: string | null) => {
+    await updateDoc(
+        doc(collection(DB, GIFTS_COLLECTION), giftId),
+        {
+            giverId: userId,
+        },
+    )
 }

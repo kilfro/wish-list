@@ -3,7 +3,7 @@ import { Avatar, Button, Col, DatePicker, Form, Input, Modal, Popover, Row } fro
 import EmojiPicker from 'emoji-picker-react'
 import dayjs, { Dayjs } from 'dayjs'
 import { createList, updateList } from '@/firebase/db/lists'
-import { List, ListFormType } from '@/types/list'
+import { List, ListCreateType } from '@/types/list'
 import { useQueryClient } from 'react-query'
 import { useUserContext } from '@/context/userContext'
 
@@ -26,7 +26,7 @@ export const ListForm: FC<FormProps> = ({ isOpen, onClose, list }) => {
     const queryClient = useQueryClient()
 
     const saveHandler = async () => {
-        const reqList: ListFormType = {
+        const reqList: ListCreateType = {
             //TODO undefined
             userId: user?.uid || '',
             title,

@@ -1,23 +1,30 @@
 import { useQuery } from 'react-query'
-import { Button, Col, Row } from 'antd'
-import { getGifts } from '@/firebase/gifts'
+import { Col, Row } from 'antd'
+import { getGiftsByUserId } from '@/firebase/db/gifts'
 import { Gift } from '@/types/gift'
-import { GiftCard } from '@/components/Gifts/GiftCard'
+import { UserGiftCard } from '@/components/Gifts/GiftCard/UserGiftCard'
+import { UserLayout } from '@/components/User/UserLayout'
+import { CardButton } from '@/components/common/CardButton'
+import { PlusCircleOutlined } from '@ant-design/icons'
 
 export const Gifts = () => {
-    const { data: gifts = [] } = useQuery<Array<Gift>>('gifts', getGifts)
+    const { data: gifts = [] } = useQuery<Array<Gift>>('gifts', getGiftsByUserId)
 
     return (
-        <>
-            <Button type={'dashed'} style={{ width: '100%' }}>Добавить подарок</Button>
-
+        <UserLayout>
             <Row gutter={[12, 12]} justify={'start'} style={{ margin: '12px 0' }}>
+                <Col>
+                    <CardButton icon={<PlusCircleOutlined/>} text={'Добавить подарок'} link={'/user/gifts/new'}/>
+                </Col>
+
                 {gifts.map(gift => (
                     <Col key={gift.id}>
-                        <GiftCard {...gift}/>
+                        <UserGiftCard {...gift}/>
                     </Col>
                 ))}
             </Row>
-        </>
+        </UserLayout>
     )
 }
+
+export default Gifts

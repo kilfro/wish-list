@@ -1,0 +1,137 @@
+import { useRouter } from 'next/router'
+import { Button, Col, Dropdown, Empty, Flex, MenuProps, message, Modal, Row, Space, Spin, Typography } from 'antd'
+import { useQuery } from 'react-query'
+import { deleteList, getListById } from '@/firebase/db/lists'
+import { UserLayout } from '@/components/User/UserLayout'
+import {
+    ArrowLeftOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    EllipsisOutlined,
+    ExclamationCircleOutlined,
+    ShareAltOutlined,
+} from '@ant-design/icons'
+import { UserGiftCard } from '@/components/Gifts/GiftCard/UserGiftCard'
+import { getListGifts } from '@/firebase/db/gifts'
+import { ListForm } from '@/components/Lists/ListForm'
+import { useState } from 'react'
+
+const ListPage = () => {
+    const [isOpenEditModal, setIsOpenEditModal] = useState(false)
+    const router = useRouter()
+
+    const {
+        data: listData,
+        isFetching: listDataIsLoading,
+    } = useQuery('list', () => getListById(router.query.listId?.toString() || ''))
+
+    const {
+        data: gifts = [],
+        isFetching: giftsIsLoading,
+    } = useQuery(['list_gifts', listData?.id], () => getListGifts(listData?.id), {
+        enabled: !!listData?.id,
+    })
+
+    const [messageApi, contextHolder] = message.useMessage()
+
+    const shareHandler = () => {
+        navigator.clipboard
+            .writeText(`http://localhost:3000/lists/${listData?.id}`)
+            .then(() => messageApi.open({
+                type: 'info',
+                content: 'Ссылка на вишлист скопированна в буфер обмена',
+            }))
+    }
+
+    const menuItems: MenuProps['items'] = [
+        {
+            label: 'Изменить',
+            key: 0,
+            icon: <EditOutlined/>,
+            onClick: () => setIsOpenEditModal(true),
+        },
+        {
+            label: 'Удалить',
+            key: 1,
+            icon: <DeleteOutlined/>,
+            danger: true,
+            onClick: () => {
+                Modal.confirm({
+                    title: `Удалить вишлист "${listData?.title}"`,
+                    icon: <ExclamationCircleOutlined/>,
+                    okText: 'Удалить',
+                    okButtonProps: { type: 'primary', danger: true },
+                    cancelText: 'Отменить',
+                    onOk: () => {
+                        deleteList(listData?.id).then(router.back)
+                    },
+                })
+            },
+        },
+    ]
+
+    return (
+        <UserLayout>
+            {contextHolder}
+
+            <Row style={{ marginBottom: 12 }} justify={'space-between'}>
+                <Col>
+                    <Button
+                        type={'link'}
+                        icon={<ArrowLeftOutlined/>}
+                        onClick={() => router.back()}
+                    >
+                        Вернуться
+                    </Button>
+                </Col>
+            </Row>
+
+            <Space
+                direction={'vertical'}
+                style={{ backgroundColor: 'white', borderRadius: 36, padding: 24, width: '100%' }}
+            >
+                <Row justify={'space-between'} align={'middle'}>
+                    <Col>
+                        <Typography.Text
+                            style={{
+                                fontWeight: 'bold',
+                                fontSize: 28,
+                            }}
+                        >{`${listData?.emoji} ${listData?.title}`}</Typography.Text>
+                    </Col>
+                    <Col>
+                        <Flex gap={'middle'} justify={'space-between'} align={'center'}>
+                            <Dropdown trigger={['click']} placement={'bottomRight'} menu={{ items: menuItems }}>
+                                <Button type={'text'} shape={'circle'} icon={<EllipsisOutlined/>}/>
+                            </Dropdown>
+
+                            <Button
+                                shape={'circle'}
+                                type={'primary'}
+                                icon={<ShareAltOutlined/>}
+                                onClick={shareHandler}
+                            />
+                        </Flex>
+                    </Col>
+                </Row>
+
+                <Row gutter={[12, 12]} justify={'start'} style={{ margin: '12px 0' }}>
+                    {gifts.length === 0 && <Empty
+                        style={{ width: '100%', margin: '20px 0' }}
+                        description={'Не добавленно ни одного подарка'}
+                    />}
+
+                    {gifts.map(gift => (
+                        <Col key={gift.id}>
+                            <UserGiftCard {...gift}/>
+                        </Col>
+                    ))}
+                </Row>
+            </Space>
+
+            <ListForm isOpen={isOpenEditModal} onClose={() => setIsOpenEditModal(false)} list={listData}/>
+        </UserLayout>
+    )
+}
+
+export default ListPage

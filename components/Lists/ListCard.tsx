@@ -3,19 +3,27 @@ import { FC, useState } from 'react'
 import type { MenuProps } from 'antd'
 import { Avatar, Button, Card, Col, Dropdown, Modal, Row, Space, Typography } from 'antd'
 import { DeleteOutlined, EditOutlined, EllipsisOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
-import { deleteList } from '@/firebase/lists'
-import { ListForm } from '@/components/ListCard/ListForm'
-import { useQueryClient } from 'react-query'
+import { deleteList } from '@/firebase/db/lists'
+import { ListForm } from '@/components/Lists/ListForm'
+import { useQuery, useQueryClient } from 'react-query'
+import { GiftCollection } from '../Gifts/GiftCollection'
+import { getListGifts } from '@/firebase/db/gifts'
+import { useRouter } from 'next/router'
 
 type CardProps = List
 
 const { Text, Title } = Typography
 
 export const ListCard: FC<CardProps> = (props) => {
+    const { id, title, date, emoji } = props
+
     const [isOpenEditModal, setIsOpenEditModal] = useState(false)
+    const router = useRouter()
     const queryClient = useQueryClient()
 
-    const { id, title, date, emoji } = props
+    const { data: gifts = [] } = useQuery(['list_gifts', id], () => getListGifts(id), {
+        enabled: !!id,
+    })
 
     const menuItems: MenuProps['items'] = [
         {
@@ -37,8 +45,7 @@ export const ListCard: FC<CardProps> = (props) => {
                     okButtonProps: { type: 'primary', danger: true },
                     cancelText: 'Отменить',
                     onOk: () => {
-                        deleteList(id)
-                        queryClient.invalidateQueries('lists')
+                        deleteList(id).then(() => queryClient.invalidateQueries('lists'))
                     },
                 })
             },
@@ -47,7 +54,14 @@ export const ListCard: FC<CardProps> = (props) => {
 
     return (
         <>
-            <Card style={{ width: 300, height: 400 }}>
+            <Card
+                style={{ width: 300, height: 400, borderRadius: 24 }}
+                hoverable
+                onClick={() => router.push({
+                    pathname: '/user/lists/[listId]',
+                    query: { listId: id },
+                })}
+            >
                 <Row justify={'space-between'}>
                     <Col>
                         <Avatar
@@ -58,7 +72,7 @@ export const ListCard: FC<CardProps> = (props) => {
                             size={42}
                         >{emoji ? emoji : '?'}</Avatar>
                     </Col>
-                    <Col>
+                    <Col onClick={event => event.stopPropagation()}>
                         <Dropdown trigger={['click']} placement={'bottomRight'} menu={{ items: menuItems }}>
                             <Button type={'text'} shape={'circle'} icon={<EllipsisOutlined/>}/>
                         </Dropdown>
@@ -69,21 +83,15 @@ export const ListCard: FC<CardProps> = (props) => {
                     <Title level={3}>{title}</Title>
 
                     <Row gutter={8} justify={'start'}>
+                        {date && <Col>
+                            <Text type={'secondary'}>{new Date(date).toLocaleDateString()}</Text>
+                        </Col>}
                         <Col>
-                            <Text type={'secondary'}>{date}</Text>
-                        </Col>
-                        <Col>
-                            <Text type={'secondary'}>Подарков: 0</Text>
+                            <Text type={'secondary'}>Подарков: {gifts.length}</Text>
                         </Col>
                     </Row>
 
-                    <Row gutter={[12, 12]}>
-                        {Array.from({ length: 6 }).map((_, index) => (
-                            <Col key={index}>
-                                <Avatar size={72} style={{ backgroundColor: 'rgba(128,128,128,0.3)' }}/>
-                            </Col>
-                        ))}
-                    </Row>
+                    <GiftCollection gifts={gifts}/>
                 </Space>
             </Card>
 

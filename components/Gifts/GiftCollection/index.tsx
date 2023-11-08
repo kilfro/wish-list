@@ -1,31 +1,37 @@
 import { Gift } from '@/types/gift'
 import { FC } from 'react'
-import { Flex } from 'antd'
+import { Avatar, Flex } from 'antd'
+import { GiftPreview } from '@/components/Gifts/GiftCollection/GiftPreview'
+import { QuestionOutlined } from '@ant-design/icons'
 
 interface Props {
     gifts: Array<Gift>
 }
 
 export const GiftCollection: FC<Props> = ({ gifts }) => {
-    const sources = gifts.map(gift => gift.imgUrl)
+    let sources = gifts.map(gift => gift.imgUrl)
+
+    if (sources.length > 6) {
+        sources = sources.slice(0, 5)
+    }
 
     return (
-        <Flex justify={'space-between'} wrap={'wrap'} gap={'middle'}>
+        <Flex justify={'start'} wrap={'wrap'} gap={'middle'}>
+            {
+                gifts.length > 0
+                    ? sources.map((url, index) => (
+                        <GiftPreview key={index} url={url}/>
+                    ))
+                    : Array.from({ length: 6 }).map((_, index) => (
+                        <Avatar key={index} size={72} icon={<QuestionOutlined/>}/>
+                    ))
+            }
 
-            {sources.map((url, index) => (
-                <div
-                    style={{
-                        width: 72,
-                        height: 72,
-                        overflow: 'hidden',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <img key={index} src={url} style={{ maxHeight: '100%', maxWidth: '100%' }}/>
-                </div>
-            ))}
+            {gifts.length > 6 &&
+                <Avatar size={72}>
+                    <span style={{ fontSize: 18, fontWeight: 'bold' }}>+{gifts.length - 5}</span>
+                </Avatar>
+            }
         </Flex>
     )
 }

@@ -14,7 +14,7 @@ interface Props {
     price?: number
 }
 
-export const GiftCard: FC<Props> = (props) => {
+export const UserGiftCard: FC<Props> = (props) => {
     const { id, ...giftData } = props
 
     const router = useRouter()
@@ -50,8 +50,11 @@ export const GiftCard: FC<Props> = (props) => {
     return (
         <BaseGiftCard
             {...giftData}
-            onClick={() => router.push(`/user/gifts/${id}`)}
             menu={menuItems}
+            onClick={() => router.push({
+                pathname: '/user/gifts/[giftId]',
+                query: { giftId: id },
+            })}
         />
     )
 }
