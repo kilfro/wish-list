@@ -2,14 +2,14 @@ import { GiftId } from '@/types/gift'
 import { FC, MouseEventHandler } from 'react'
 import { Button } from 'antd'
 import { useRouter } from 'next/router'
-import { toggleGiver } from '@/firebase/db/gifts'
 import { CheckCircleTwoTone } from '@ant-design/icons'
 import { useQueryClient } from 'react-query'
 import { useUserContext } from '@/context/userContext'
+import { updateGift } from '@/api/gifts/updateGift'
 
 interface Props {
     giftId: GiftId
-    giverId: string | undefined
+    giverId: string | undefined | null
 }
 
 export const GiverButton: FC<Props> = ({ giftId, giverId = null }) => {
@@ -23,9 +23,14 @@ export const GiverButton: FC<Props> = ({ giftId, giverId = null }) => {
         if (!user) {
             router.push('/login')
         } else {
-            toggleGiver(giftId, !!giverId ? null : user.uid).then(() => {
-                queryClient.invalidateQueries('gifts')
-            })
+            const giverData = {
+                giverId: !!giverId ? null : user.uid,
+            }
+
+            updateGift(giftId, giverData)
+                .then(() => {
+                    queryClient.invalidateQueries('gifts')
+                })
         }
     }
 

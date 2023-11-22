@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
-import { Button, Col, Dropdown, Empty, Flex, MenuProps, message, Modal, Row, Space, Spin, Typography } from 'antd'
-import { useQuery } from 'react-query'
-import { deleteList, getListById } from '@/firebase/db/lists'
+import { Button, Col, Dropdown, Empty, Flex, MenuProps, message, Modal, Row, Space, Typography } from 'antd'
+import { useQuery, useQueryClient } from 'react-query'
 import { UserLayout } from '@/components/User/UserLayout'
 import {
     ArrowLeftOutlined,
@@ -12,23 +11,24 @@ import {
     ShareAltOutlined,
 } from '@ant-design/icons'
 import { UserGiftCard } from '@/components/Gifts/GiftCard/UserGiftCard'
-import { getListGifts } from '@/firebase/db/gifts'
 import { ListForm } from '@/components/Lists/ListForm'
 import { useState } from 'react'
+import { deleteWishList } from '@/api/lists/deleteWishList'
+import { getListById } from '@/api/lists/getListById'
+import { getInListGifts } from '@/api/gifts/getInListGifts'
 
 const ListPage = () => {
     const [isOpenEditModal, setIsOpenEditModal] = useState(false)
     const router = useRouter()
+    const queryClient = useQueryClient()
 
     const {
         data: listData,
-        isFetching: listDataIsLoading,
-    } = useQuery('list', () => getListById(router.query.listId?.toString() || ''))
+    } = useQuery('list', () => getListById(router.query.listId?.toString()))
 
     const {
         data: gifts = [],
-        isFetching: giftsIsLoading,
-    } = useQuery(['list_gifts', listData?.id], () => getListGifts(listData?.id), {
+    } = useQuery(['list_gifts', listData?.id], () => getInListGifts(listData?.id), {
         enabled: !!listData?.id,
     })
 
@@ -62,8 +62,10 @@ const ListPage = () => {
                     okText: 'Удалить',
                     okButtonProps: { type: 'primary', danger: true },
                     cancelText: 'Отменить',
-                    onOk: () => {
-                        deleteList(listData?.id).then(router.back)
+                    onOk: async () => {
+                        await deleteWishList(listData?.id)
+                        await queryClient.invalidateQueries('lists')
+                        router.back()
                     },
                 })
             },

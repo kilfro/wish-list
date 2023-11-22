@@ -1,5 +1,4 @@
 import { UserLayout } from '@/components/User/UserLayout'
-import { deleteGift, getGiftById, getGiftsIds } from '@/firebase/db/gifts'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { Gift } from '@/types/gift'
 import { FC } from 'react'
@@ -13,9 +12,12 @@ import {
     ExclamationCircleOutlined,
 } from '@ant-design/icons'
 import { useRouter } from 'next/router'
+import { deleteGift } from '@/api/gifts/deleteGift'
+import { getGiftById } from '@/api/gifts/getGiftById'
+import { getAllGiftsIds } from '@/api/gifts/getAllGiftsIds'
 
 interface Props {
-    gift: Gift
+    gift: Gift | undefined
 }
 
 const GiftPage: FC<Props> = (props) => {
@@ -26,7 +28,7 @@ const GiftPage: FC<Props> = (props) => {
             label: 'Изменить',
             key: 0,
             icon: <EditOutlined/>,
-            onClick: () => router.push({ pathname: '/user/gifts/edit', query: `giftId=${props.gift.id}` }),
+            onClick: () => router.push({ pathname: '/user/gifts/edit', query: `giftId=${props.gift?.id}` }),
         },
         {
             label: 'Удалить',
@@ -41,7 +43,7 @@ const GiftPage: FC<Props> = (props) => {
                     okButtonProps: { type: 'primary', danger: true },
                     cancelText: 'Отменить',
                     onOk: () => {
-                        deleteGift(props.gift.id).then(() => router.back())
+                        deleteGift(props.gift?.id).then(() => router.back())
                     },
                 })
             },
@@ -76,13 +78,13 @@ const GiftPage: FC<Props> = (props) => {
 }
 
 export const getStaticProps: GetStaticProps<Props> = async (context) => {
-    const gift = await getGiftById(context.params?.giftId?.toString() || '')
+    const gift = await getGiftById(context.params?.giftId?.toString())
 
     return { props: { gift } }
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-    const ids = await getGiftsIds()
+    const ids = await getAllGiftsIds()
     const paths = ids.map(id => ({ params: { giftId: id } }))
 
     return { paths, fallback: false }

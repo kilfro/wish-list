@@ -1,18 +1,17 @@
 import { MainLayout } from '@/components/MainLayout'
 import { Avatar, Col, Empty, Flex, Row, Space, Typography } from 'antd'
-import { getListById } from '@/firebase/db/lists'
 import { List } from '@/types/list'
 import { Gift } from '@/types/gift'
 import { FC, useEffect } from 'react'
-import { getListGifts } from '@/firebase/db/gifts'
 import { UserData } from '@/types/user'
-import { getUserById } from '@/firebase/db/users'
 import Head from 'next/head'
 import { BaseGiftCard } from '@/components/Gifts/GiftCard/BaseGiftCard'
 import { useRouter } from 'next/router'
 import { GiverButton } from '@/components/Gifts/GiverButton'
 import { useQuery } from 'react-query'
 import { useUserContext } from '@/context/userContext'
+import { getListById } from '@/api/lists/getListById'
+import { getInListGifts } from '@/api/gifts/getInListGifts'
 
 interface Props {
     list: List
@@ -22,9 +21,18 @@ interface Props {
 
 const SharedListPage: FC<Props> = () => {
     const router = useRouter()
-    const { data: list } = useQuery('list-data', () => getListById(router.query.listId?.toString()))
-    const { data: gifts = [] } = useQuery('gifts', () => getListGifts(router.query.listId?.toString()))
-    const { data: userData } = useQuery('user', () => getUserById(list?.userId))
+    const { data: list } = useQuery('list-data', () => getListById(router.query.listId?.toString()), {
+        enabled: !!router.query.listId,
+    })
+    const { data: gifts = [] } = useQuery('gifts', () => getInListGifts(router.query.listId?.toString()), {
+        enabled: !!list,
+    })
+    const { data: userData } = useQuery('user', async () => {
+        const resp = await fetch(`http://localhost:3001/api/v1/users/${list?.userId}`, { credentials: 'same-origin' })
+        return await resp.json()
+    }, {
+        enabled: !!list?.userId,
+    })
     const user = useUserContext()
 
     useEffect(() => {
@@ -58,14 +66,16 @@ const SharedListPage: FC<Props> = () => {
                     </Col>
                     <Col>
                         <Flex align={'center'} gap={'middle'}>
-                            <Avatar src={<img src={userData?.pictureUrl}/>} size={'large'}/>
+                            <Avatar src={<img src={userData?.pictureUrl} alt={'Avatar'}/>} size={'large'}/>
                             <Typography.Text strong style={{ fontSize: 18 }}>{userData?.name}</Typography.Text>
                         </Flex>
                     </Col>
                 </Row>
 
                 <Flex gap={'middle'}>
-                    <Typography.Text type={'secondary'}>{list?.date}</Typography.Text>
+                    {list?.date &&
+                        <Typography.Text type={'secondary'}>{new Date(list?.date).toLocaleDateString()}</Typography.Text>
+                    }
                     <Typography.Text type={'secondary'}>Подарков: {gifts.length}</Typography.Text>
                 </Flex>
 
