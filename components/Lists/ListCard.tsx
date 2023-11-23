@@ -3,12 +3,12 @@ import { FC, useState } from 'react'
 import type { MenuProps } from 'antd'
 import { Avatar, Button, Card, Col, Dropdown, Modal, Row, Space, Typography } from 'antd'
 import { DeleteOutlined, EditOutlined, EllipsisOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
-import { deleteList } from '@/firebase/db/lists'
 import { ListForm } from '@/components/Lists/ListForm'
 import { useQuery, useQueryClient } from 'react-query'
 import { GiftCollection } from '../Gifts/GiftCollection'
-import { getListGifts } from '@/firebase/db/gifts'
 import { useRouter } from 'next/router'
+import { deleteWishList } from '@/api/lists/deleteWishList'
+import { getInListGifts } from '@/api/gifts/getInListGifts'
 
 type CardProps = List
 
@@ -21,7 +21,7 @@ export const ListCard: FC<CardProps> = (props) => {
     const router = useRouter()
     const queryClient = useQueryClient()
 
-    const { data: gifts = [] } = useQuery(['list_gifts', id], () => getListGifts(id), {
+    const { data: gifts = [] } = useQuery(['list_gifts', id], () => getInListGifts(id), {
         enabled: !!id,
     })
 
@@ -44,8 +44,9 @@ export const ListCard: FC<CardProps> = (props) => {
                     okText: 'Удалить',
                     okButtonProps: { type: 'primary', danger: true },
                     cancelText: 'Отменить',
-                    onOk: () => {
-                        deleteList(id).then(() => queryClient.invalidateQueries('lists'))
+                    onOk: async () => {
+                        await deleteWishList(id)
+                        await queryClient.invalidateQueries('lists')
                     },
                 })
             },

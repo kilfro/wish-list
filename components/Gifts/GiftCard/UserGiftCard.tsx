@@ -3,9 +3,9 @@ import { FC } from 'react'
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { useRouter } from 'next/router'
 import { GiftId } from '@/types/gift'
-import { deleteGift } from '@/firebase/db/gifts'
 import { useQueryClient } from 'react-query'
 import { BaseGiftCard } from '@/components/Gifts/GiftCard/BaseGiftCard'
+import { deleteGift } from '@/api/gifts/deleteGift'
 
 interface Props {
     id: GiftId

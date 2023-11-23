@@ -1,12 +1,12 @@
 import { UserLayout } from '@/components/User/UserLayout'
 import { GiftForm } from '@/components/Gifts/GiftForm'
-import { getGiftById } from '@/firebase/db/gifts'
 import { Gift } from '@/types/gift'
 import { FC } from 'react'
 import { GetServerSideProps } from 'next'
+import { getGiftById } from '@/api/gifts/getGiftById'
 
 interface Props {
-    gift: Gift
+    gift: Gift | undefined
 }
 
 const EditGiftPage: FC<Props> = ({ gift }) => {
@@ -18,7 +18,7 @@ const EditGiftPage: FC<Props> = ({ gift }) => {
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
-    let gift: Gift = await getGiftById(context.query.giftId?.toString() || '')
+    const gift = await getGiftById(context.query.giftId?.toString())
 
     return {
         props: {

@@ -1,11 +1,11 @@
 import { FC, useEffect } from 'react'
 import { Button, DatePicker, Form, Input, Modal } from 'antd'
-import { List, ListCreateType, ListFormType } from '@/types/list'
+import { List, ListBaseData, ListFormType } from '@/types/list'
 import { useQueryClient } from 'react-query'
-import { useUserContext } from '@/context/userContext'
 import { EmojiPicker } from '@/components/Lists/ListForm/EmojiPicker'
-import { createList, updateList } from '@/firebase/db/lists'
 import dayjs from 'dayjs'
+import { createList } from '@/api/lists/createList'
+import { updateList } from '@/api/lists/updateList'
 
 interface FormProps {
     isOpen: boolean
@@ -19,7 +19,6 @@ export const ListForm: FC<FormProps> = ({ isOpen, onClose, list }) => {
     const [listForm] = useForm<ListFormType>()
     const emojiValue = useWatch('emoji', listForm)
 
-    const user = useUserContext()
     const queryClient = useQueryClient()
 
     useEffect(() => {
@@ -36,7 +35,7 @@ export const ListForm: FC<FormProps> = ({ isOpen, onClose, list }) => {
     const saveListHandler = async (values: ListFormType) => {
         const { date, ...commonFields } = values
 
-        const listData: ListCreateType = {
+        const listData: ListBaseData = {
             ...commonFields,
             date: date?.toDate().getTime() || null,
         }
@@ -45,11 +44,7 @@ export const ListForm: FC<FormProps> = ({ isOpen, onClose, list }) => {
             if (!!list) {
                 await updateList(list.id, listData)
             } else {
-                await createList({
-                    ...listData,
-                    createdTime: Date.now(),
-                    userId: user?.uid || '',
-                })
+                await createList(listData)
             }
         } finally {
             await queryClient.invalidateQueries('lists')

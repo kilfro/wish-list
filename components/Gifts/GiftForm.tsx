@@ -1,12 +1,12 @@
 import { Button, Col, Form, Image, Input, Row, Select, Space, Typography } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useRouter } from 'next/router'
-import { createGift, editGift } from '@/firebase/db/gifts'
-import { Gift, GiftFormType } from '@/types/gift'
+import { Gift, GiftBaseData, GiftFormType } from '@/types/gift'
 import { FC, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { getUserLists } from '@/firebase/db/lists'
-import { useUserContext } from '@/context/userContext'
+import { getUserLists } from '@/api/lists/getUserLists'
+import { createGift } from '@/api/gifts/createGift'
+import { updateGift } from '@/api/gifts/updateGift'
 
 interface Props {
     gift?: Gift
@@ -18,9 +18,8 @@ export const GiftForm: FC<Props> = ({ gift }) => {
     const imgUrl = useWatch('imgUrl', giftForm)
 
     const { back, query } = useRouter()
-    const user = useUserContext()
 
-    const { data: lists, isLoading } = useQuery('lists', getUserLists)
+    const { data: lists } = useQuery('lists', () => getUserLists())
 
     const listsOptions = lists?.map(list => ({
         value: list.id,
@@ -36,17 +35,14 @@ export const GiftForm: FC<Props> = ({ gift }) => {
     }, [gift])
 
     const createHandler = async (formData: GiftFormType) => {
-        const data: GiftFormType = {
+        const data: GiftBaseData = {
             name: formData.name,
             imgUrl: formData.imgUrl,
-            //TODO undefined
-            userId: user?.uid || '',
-            createdTime: gift?.createdTime || Date.now(),
-            ...Object.fromEntries(Object.entries(formData).filter(([key, value]) => !!value)),
+            ...Object.fromEntries(Object.entries(formData).filter(([, value]) => !!value)),
         }
 
         if (!!query.giftId) {
-            await editGift(query.giftId.toString(), data)
+            await updateGift(query.giftId.toString(), data)
         } else {
             await createGift(data)
         }

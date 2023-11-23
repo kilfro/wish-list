@@ -1,6 +1,8 @@
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { AUTH } from '@/firebase/index'
-import { createUserData, getUserById } from '@/firebase/db/users'
+import { getUserDataById } from '@/api/users/getUserDataById'
+import { createUserData } from '@/api/users/createUserData'
+import { AxiosError } from 'axios'
 
 const provider = new GoogleAuthProvider()
 
@@ -12,14 +14,20 @@ export const signInGoogle = async () => {
     try {
         const authData = await signInWithPopup(AUTH, provider)
 
-        const userData = await getUserById(authData.user.uid)
+        try {
+            await getUserDataById(authData.user.uid)
+        } catch (err) {
+            const error = err as AxiosError
 
-        if (!userData) {
-            await createUserData({
-                id: authData.user.uid,
-                name: authData.user.displayName || '',
-                pictureUrl: authData.user.photoURL || '',
-            })
+            if (error.response?.status === 404) {
+                await createUserData({
+                    id: authData.user.uid,
+                    name: authData.user.displayName || '',
+                    pictureUrl: authData.user.photoURL || '',
+                })
+            } else {
+                throw err
+            }
         }
 
         history.back()

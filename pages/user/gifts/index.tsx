@@ -1,14 +1,14 @@
 import { useQuery } from 'react-query'
 import { Col, Row } from 'antd'
-import { getGiftsByUserId } from '@/firebase/db/gifts'
 import { Gift } from '@/types/gift'
 import { UserGiftCard } from '@/components/Gifts/GiftCard/UserGiftCard'
 import { UserLayout } from '@/components/User/UserLayout'
 import { CardButton } from '@/components/common/CardButton'
 import { PlusCircleOutlined } from '@ant-design/icons'
+import { getUserGifts } from '@/api/gifts/getUserGifts'
 
 export const Gifts = () => {
-    const { data: gifts = [] } = useQuery<Array<Gift>>('gifts', getGiftsByUserId)
+    const { data: gifts = [] } = useQuery<Array<Gift>>('gifts', getUserGifts)
 
     return (
         <UserLayout>
