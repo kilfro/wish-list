@@ -6,9 +6,14 @@ import { UserLayout } from '@/components/User/UserLayout'
 import { CardButton } from '@/components/common/CardButton'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import { getUserGifts } from '@/api/gifts/getUserGifts'
+import { useUserContext } from '@/context/userContext'
 
 export const Gifts = () => {
-    const { data: gifts = [] } = useQuery<Array<Gift>>('gifts', getUserGifts)
+    const user = useUserContext()
+
+    const { data: gifts = [] } = useQuery<Array<Gift>>(['gifts', user?.uid], () => getUserGifts(user?.uid), {
+        enabled: !!user?.uid,
+    })
 
     return (
         <UserLayout entities={gifts}>

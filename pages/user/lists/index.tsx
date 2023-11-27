@@ -10,6 +10,7 @@ import { DownOutlined, PlusCircleOutlined, SortAscendingOutlined, SortDescending
 import { Order } from '@/types/common'
 import { ItemType } from 'rc-collapse/lib/interface'
 import { getUserLists } from '@/api/lists/getUserLists'
+import { useUserContext } from '@/context/userContext'
 
 const sorter: { [key: string]: string } = {
     createdTime: 'По дате создания',
@@ -18,11 +19,15 @@ const sorter: { [key: string]: string } = {
 }
 
 export const Lists: FC = () => {
+    const user = useUserContext()
+
     const [isOpenCreateModal, setIsOpenCreateModal] = useState(false)
     const [sortBy, setSortBy] = useState('createdTime')
     const [order, setOrder] = useState<Order>(Order.DESC)
 
-    const { data: lists = [] } = useQuery<Array<List>>(['lists', sortBy, order], () => getUserLists(sortBy, order))
+    const { data: lists = [] } = useQuery<Array<List>>(['lists', user?.uid, sortBy, order], () => getUserLists(user?.uid, sortBy, order), {
+        enabled: !!user?.uid,
+    })
 
     const selectSortHandler = ({ key }: ItemType) => {
         setSortBy(key?.toString() || '')

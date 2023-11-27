@@ -22,9 +22,11 @@ const ListPage = () => {
     const router = useRouter()
     const queryClient = useQueryClient()
 
-    const {
-        data: listData,
-    } = useQuery('list', () => getListById(router.query.listId?.toString()))
+    const listId = router.query.listId?.toString()
+
+    const { data: listData } = useQuery(['list', listId], () => getListById(listId), {
+        enabled: !!listId,
+    })
 
     const {
         data: gifts = [],
