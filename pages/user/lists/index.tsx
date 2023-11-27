@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react'
 import { ListCard } from '@/components/Lists/ListCard'
-import { Col, Dropdown, Flex, MenuProps, Row, Space, Typography } from 'antd'
+import { Dropdown, Flex, MenuProps, Row, Space, Typography } from 'antd'
 import { ListForm } from '@/components/Lists/ListForm'
 import { useQuery } from 'react-query'
 import { List } from '@/types/list'
@@ -63,40 +63,39 @@ export const Lists: FC = () => {
     }))
 
     return (
-        <UserLayout>
-            <Row style={{ paddingLeft: 12 }}>
-                <Dropdown
-                    menu={{
-                        items,
-                        selectable: true,
-                        selectedKeys: [sortBy],
-                    }}
-                    trigger={['click']}
-                    overlayStyle={{ minWidth: 200 }}
-                >
-                    <Typography.Link>
-                        <Space>
-                            {sorter[sortBy]}
-                            <DownOutlined/>
-                        </Space>
-                    </Typography.Link>
-                </Dropdown>
-            </Row>
-            <Row gutter={[12, 12]} justify={'start'} style={{ margin: '12px 0' }}>
-                <Col>
+        <UserLayout entities={[]}>
+            <Space direction={'vertical'}>
+                <Row style={{ paddingLeft: 24, width: '100%', marginBottom: 12 }}>
+                    <Dropdown
+                        menu={{
+                            items,
+                            selectable: true,
+                            selectedKeys: [sortBy],
+                        }}
+                        trigger={['click']}
+                        overlayStyle={{ minWidth: 200 }}
+                    >
+                        <Typography.Link>
+                            <Space>
+                                {sorter[sortBy]}
+                                <DownOutlined/>
+                            </Space>
+                        </Typography.Link>
+                    </Dropdown>
+                </Row>
+
+                <Flex gap={12} justify={'start'} wrap={'wrap'} align={'stretch'}>
                     <CardButton
                         icon={<PlusCircleOutlined/>}
                         text={'Новый список'}
                         onClick={() => setIsOpenCreateModal(true)}
                     />
-                </Col>
 
-                {lists.map(list => (
-                    <Col key={list.id}>
-                        <ListCard {...list}/>
-                    </Col>
-                ))}
-            </Row>
+                    {lists.map(list => (
+                        <ListCard {...list} key={list.id}/>
+                    ))}
+                </Flex>
+            </Space>
 
             <ListForm isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)}/>
         </UserLayout>

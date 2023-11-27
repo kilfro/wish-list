@@ -21,7 +21,7 @@ export const BaseGiftCard: FC<Props> = ({ imgUrl, name, price, onClick, menu, fo
         <Card onClick={onClick}>
 
             {(menu && menu.length > 0) && (
-                <Row justify={'end'} style={{ position: 'absolute', right: 24 }}>
+                <Row justify={'end'} style={{ height: 0 }}>
                     <Col onClick={event => event.stopPropagation()}>
                         <Dropdown trigger={['click']} placement={'bottomRight'} menu={{ items: menu }}>
                             <Button

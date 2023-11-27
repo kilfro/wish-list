@@ -13,12 +13,5 @@ app.use(express.json())
 app.use(morgan('common'))
 
 app.use('/api/v1', v1Router)
-app.use('/api/v1/error', (req, res) => {
-    res.status(500).send({
-        code: 'A1',
-        message: 'Some custom error',
-        timestamp: Date.now(),
-    })
-})
 
 app.listen(port, () => console.log(`Started listening on port ${port}`))

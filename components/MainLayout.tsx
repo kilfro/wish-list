@@ -2,14 +2,14 @@ import { Layout } from 'antd'
 import { CSSProperties, ReactNode } from 'react'
 import { HeaderMenu } from '@/components/HeaderMenu'
 
-const { Header, Content, Footer, Sider } = Layout
+const { Header, Content } = Layout
 
 interface LayoutProps {
     children: ReactNode
 }
 
 const headerStyle: CSSProperties = {
-    backgroundColor: '#1677ff'
+    backgroundColor: '#1677ff',
 }
 
 export const MainLayout = ({ children }: LayoutProps) => {
@@ -18,9 +18,9 @@ export const MainLayout = ({ children }: LayoutProps) => {
             <Header style={headerStyle}>
                 <HeaderMenu/>
             </Header>
-            <Content style={{ padding: 20, width: '80%', margin: '0 auto' }}>
+            <div>
                 {children}
-            </Content>
+            </div>
         </Layout>
     )
 }

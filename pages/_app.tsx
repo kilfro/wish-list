@@ -4,9 +4,16 @@ import ru from 'antd/locale/ru_RU'
 import '@/styles/global.css'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import Head from 'next/head'
-import { UserContextProvider } from '../context/userContext'
+import { UserContextProvider } from '@/context/userContext'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            refetchOnWindowFocus: false
+        }
+    }
+})
+
 export default function MyApp({ Component, pageProps }: AppProps) {
     return (
         <>

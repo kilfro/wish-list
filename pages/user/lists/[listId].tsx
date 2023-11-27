@@ -118,10 +118,12 @@ const ListPage = () => {
                 </Row>
 
                 <Row gutter={[12, 12]} justify={'start'} style={{ margin: '12px 0' }}>
-                    {gifts.length === 0 && <Empty
-                        style={{ width: '100%', margin: '20px 0' }}
-                        description={'Не добавленно ни одного подарка'}
-                    />}
+                    {gifts.length === 0 && (
+                        <Empty
+                            style={{ width: '100%', margin: '20px 0' }}
+                            description={'Не добавленно ни одного подарка'}
+                        />
+                    )}
 
                     {gifts.map(gift => (
                         <Col key={gift.id}>

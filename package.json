@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.17.2",
-    "antd": "^5.10.1",
+    "antd": "^5.11.3",
     "axios": "^1.6.2",
     "emoji-picker-react": "^4.5.2",
     "firebase": "^10.4.0",
