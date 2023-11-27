@@ -23,8 +23,8 @@ export const ListForm: FC<FormProps> = ({ isOpen, onClose, list }) => {
 
     useEffect(() => {
         if (list) {
-            console.log(list)
             const { date, title, emoji } = list
+
             listForm.setFieldsValue({
                 title,
                 emoji,

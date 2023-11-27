@@ -12,12 +12,20 @@ import {
 } from '@ant-design/icons'
 import { UserGiftCard } from '@/components/Gifts/GiftCard/UserGiftCard'
 import { ListForm } from '@/components/Lists/ListForm'
-import { useState } from 'react'
+import { FC, useState } from 'react'
 import { deleteWishList } from '@/api/lists/deleteWishList'
 import { getListById } from '@/api/lists/getListById'
 import { getInListGifts } from '@/api/gifts/getInListGifts'
+import { GetServerSideProps } from 'next'
+import { List } from '@/types/list'
+import { Gift } from '@/types/gift'
 
-const ListPage = () => {
+interface ListPageProps {
+    list: List | undefined
+    giftsInList: Array<Gift>
+}
+
+const ListPage: FC<ListPageProps> = ({ list, giftsInList }) => {
     const [isOpenEditModal, setIsOpenEditModal] = useState(false)
     const router = useRouter()
     const queryClient = useQueryClient()
@@ -26,12 +34,14 @@ const ListPage = () => {
 
     const { data: listData } = useQuery(['list', listId], () => getListById(listId), {
         enabled: !!listId,
+        initialData: list,
     })
 
     const {
         data: gifts = [],
     } = useQuery(['list_gifts', listData?.id], () => getInListGifts(listData?.id), {
         enabled: !!listData?.id,
+        initialData: giftsInList,
     })
 
     const [messageApi, contextHolder] = message.useMessage()
@@ -138,6 +148,20 @@ const ListPage = () => {
             <ListForm isOpen={isOpenEditModal} onClose={() => setIsOpenEditModal(false)} list={listData}/>
         </UserLayout>
     )
+}
+
+export const getServerSideProps: GetServerSideProps<ListPageProps> = async (context) => {
+    const listId = context.params?.listId?.toString()
+
+    const list = await getListById(listId)
+    const giftsInList = await getInListGifts(list?.id)
+
+    return {
+        props: {
+            list,
+            giftsInList,
+        },
+    }
 }
 
 export default ListPage
