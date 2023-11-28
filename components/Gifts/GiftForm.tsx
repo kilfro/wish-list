@@ -7,6 +7,7 @@ import { useQuery } from 'react-query'
 import { getUserLists } from '@/api/lists/getUserLists'
 import { createGift } from '@/api/gifts/createGift'
 import { updateGift } from '@/api/gifts/updateGift'
+import { useUserContext } from '@/context/userContext'
 
 interface Props {
     gift?: Gift
@@ -16,10 +17,11 @@ const { useForm, useWatch, Item } = Form
 export const GiftForm: FC<Props> = ({ gift }) => {
     const [giftForm] = useForm()
     const imgUrl = useWatch('imgUrl', giftForm)
+    const user = useUserContext()
 
     const { back, query } = useRouter()
 
-    const { data: lists } = useQuery('lists', () => getUserLists())
+    const { data: lists } = useQuery('lists', () => getUserLists(user?.uid))
 
     const listsOptions = lists?.map(list => ({
         value: list.id,

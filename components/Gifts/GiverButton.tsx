@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { CheckCircleTwoTone } from '@ant-design/icons'
 import { useQueryClient } from 'react-query'
 import { useUserContext } from '@/context/userContext'
-import { updateGift } from '@/api/gifts/updateGift'
+import { toggleGiver } from '@/api/gifts/toggleGiver'
 
 interface Props {
     giftId: GiftId
@@ -23,11 +23,7 @@ export const GiverButton: FC<Props> = ({ giftId, giverId = null }) => {
         if (!user) {
             router.push('/login')
         } else {
-            const giverData = {
-                giverId: !!giverId ? null : user.uid,
-            }
-
-            updateGift(giftId, giverData)
+            toggleGiver(giftId)
                 .then(() => {
                     queryClient.invalidateQueries('gifts')
                 })

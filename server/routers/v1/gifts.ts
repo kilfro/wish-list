@@ -85,6 +85,38 @@ giftsRouter.delete('/:giftId', async (req, res) => {
     }
 })
 
+giftsRouter.put('/:giftId/toggleGiver', async (req, res) => {
+    const { giftId } = req.params
+
+    try {
+        const giftSnapshot = await DB.collection(Collection.GIFTS).doc(giftId).get()
+
+        if (!giftSnapshot.exists) {
+            res.status(404).send()
+        }
+        const currentGiver = giftSnapshot.data()?.giverId
+        const decodedToken = await verifyToken(req)
+
+        if (!!currentGiver && (currentGiver !== decodedToken.uid)) {
+            res.status(403).send()
+        }
+
+        const newGiftData = {
+            giverId: !!currentGiver ? null : decodedToken.uid,
+        }
+
+        await DB.collection(Collection.GIFTS).doc(giftId).update(newGiftData)
+
+        res.status(204).send()
+    } catch (err) {
+        if (err instanceof FetchError) {
+            res.status(err.status).send(err.message)
+        } else {
+            res.status(500).send(err)
+        }
+    }
+})
+
 giftsRouter.put('/:giftId', async (req, res) => {
     const { giftId } = req.params
     const giftData = req.body

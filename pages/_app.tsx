@@ -9,7 +9,7 @@ import { UserContextProvider } from '@/context/userContext'
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            refetchOnWindowFocus: false
+            // refetchOnWindowFocus: false
         }
     }
 })
