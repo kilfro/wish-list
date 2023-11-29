@@ -2,7 +2,7 @@ import { GiftId } from '@/types/gift'
 import { FC, MouseEventHandler } from 'react'
 import { Button } from 'antd'
 import { useRouter } from 'next/router'
-import { CheckCircleTwoTone } from '@ant-design/icons'
+import { CloseCircleTwoTone } from '@ant-design/icons'
 import { useQueryClient } from 'react-query'
 import { useUserContext } from '@/context/userContext'
 import { toggleGiver } from '@/api/gifts/toggleGiver'
@@ -17,7 +17,7 @@ export const GiverButton: FC<Props> = ({ giftId, giverId = null }) => {
     const router = useRouter()
     const queryClient = useQueryClient()
 
-    const onChooseGiftHandler: MouseEventHandler<HTMLElement> = (event) => {
+    const onToggleGiftHandler: MouseEventHandler<HTMLElement> = (event) => {
         event.stopPropagation()
 
         if (!user) {
@@ -30,21 +30,15 @@ export const GiverButton: FC<Props> = ({ giftId, giverId = null }) => {
         }
     }
 
-    if (!!giverId && !!user && (user.uid !== giverId)) {
-        return (
-            <Button type={'text'} icon={<CheckCircleTwoTone twoToneColor='#52c41a'/>}>
-                Подарок уже забронирован
-            </Button>
-        )
+    if (!giverId) {
+        return <Button type={'primary'} onClick={onToggleGiftHandler}>Подарить</Button>
+    } else if (!!user && user.uid === giverId) {
+        return <Button type={'text'} style={{color: 'green'}} onClick={onToggleGiftHandler}>Вы выбрали этот подарок</Button>
     }
 
     return (
-        <Button
-            type={!!giverId ? 'text' : 'primary'}
-            danger={!!giverId}
-            onClick={onChooseGiftHandler}
-        >
-            {!!giverId ? 'Отменить выбор' : 'Подарить'}
+        <Button type={'text'} icon={<CloseCircleTwoTone twoToneColor='#ff4d4f'/>}>
+            Подарок уже забронирован
         </Button>
     )
 }

@@ -2,7 +2,7 @@ import { Layout } from 'antd'
 import { CSSProperties, ReactNode } from 'react'
 import { HeaderMenu } from '@/components/HeaderMenu'
 
-const { Header, Content } = Layout
+const { Header } = Layout
 
 interface LayoutProps {
     children: ReactNode
