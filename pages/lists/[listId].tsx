@@ -1,7 +1,7 @@
 import { Avatar, Col, Empty, Flex, Row, Space, Typography } from 'antd'
 import { List } from '@/types/list'
 import { Gift } from '@/types/gift'
-import { FC, useEffect } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { UserData } from '@/types/user'
 import { BaseGiftCard } from '@/components/Gifts/GiftCard/BaseGiftCard'
 import { useRouter } from 'next/router'
@@ -14,6 +14,7 @@ import { SharedListLayout } from '@/components/Lists/SharedListLayout'
 import { GetServerSideProps } from 'next'
 import { getUserDataById } from '@/api/users/getUserDataById'
 import { dateFormatter } from '@/utils/format'
+import { GiftModal } from '@/components/Gifts/GiftModal'
 
 interface SharedListPageProps {
     list: List | undefined
@@ -22,6 +23,8 @@ interface SharedListPageProps {
 }
 
 const SharedListPage: FC<SharedListPageProps> = ({ list, inListGifts, userData }) => {
+    const [selectedGiftIndex, setSelectedGiftIndex] = useState<number | null>(null)
+
     const router = useRouter()
     const user = useUserContext()
 
@@ -77,14 +80,20 @@ const SharedListPage: FC<SharedListPageProps> = ({ list, inListGifts, userData }
                         description={'Не добавленно ни одного подарка'}
                     />}
 
-                    {gifts.map(gift => (
+                    {gifts.map((gift, index) => (
                         <BaseGiftCard
                             key={gift.id} {...gift}
                             footer={<GiverButton giftId={gift.id} giverId={gift.giverId}/>}
+                            onClick={() => setSelectedGiftIndex(index)}
                         />
                     ))}
                 </Flex>
             </Space>
+
+            <GiftModal
+                gift={selectedGiftIndex !== null ? gifts[selectedGiftIndex] : null}
+                onClose={() => setSelectedGiftIndex(null)}
+            />
         </SharedListLayout>
     )
 }
