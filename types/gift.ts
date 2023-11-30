@@ -7,7 +7,7 @@ export interface GiftBaseData {
     link?: string
     price?: number
     imgUrl: string
-    listId?: ListId
+    listId?: ListId | null
     giverId?: string | null
 }
 

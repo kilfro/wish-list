@@ -10,7 +10,6 @@ import {
     ExclamationCircleOutlined,
     ShareAltOutlined,
 } from '@ant-design/icons'
-import { UserGiftCard } from '@/components/Gifts/GiftCard/UserGiftCard'
 import { ListForm } from '@/components/Lists/ListForm'
 import { FC, useState } from 'react'
 import { deleteWishList } from '@/api/lists/deleteWishList'
@@ -19,6 +18,7 @@ import { getInListGifts } from '@/api/gifts/getInListGifts'
 import { GetServerSideProps } from 'next'
 import { List } from '@/types/list'
 import { Gift } from '@/types/gift'
+import { InListGiftCard } from '@/components/Gifts/GiftCard/InListGiftCard'
 
 interface ListPageProps {
     list: List | undefined
@@ -139,7 +139,7 @@ const ListPage: FC<ListPageProps> = ({ list, giftsInList }) => {
 
                     {gifts.map(gift => (
                         <Col key={gift.id}>
-                            <UserGiftCard {...gift}/>
+                            <InListGiftCard {...gift}/>
                         </Col>
                     ))}
                 </Row>
